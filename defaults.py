@@ -1,0 +1,10 @@
+model_savename = "t5-base-frame-finetuned"
+pretrained_name = "t5-base"
+epochs = 5
+batchsize = 6
+learning_rate=1e-4
+train_min_class_count=5
+test_split=0.2
+val_split=0.2
+no_tries = 3
+data_csv_file = "data/Webis-argument-framing.csv"
