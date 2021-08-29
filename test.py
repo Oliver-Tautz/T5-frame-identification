@@ -3,11 +3,12 @@ from model import get_model, get_tokenizer
 from preprocessing import get_train_data, get_arguments
 from random import randint
 import tensorflow as tf
+from os.path import join
 
 import argparse
 
 parser = argparse.ArgumentParser(description='test a T5 on random examples from the Webis-Framing-19 dataset.')
-parser.add_argument('--pretrained-name', help="Name of the pretrained model to test. Huggingface models and local models can be used. For relative paths you need to use \"./../modelname\"" ,type=str,default=defaults.model_savename)
+parser.add_argument('--pretrained-name', help="Name of the pretrained model to test. Huggingface models and local models can be used." ,type=str,default=defaults.model_savename)
 parser.add_argument('--data-file', help="absolute or relative path to Webis-Framing-19 dataset csv file.", type=str, default=defaults.data_csv_file)
 parser.add_argument('--no-tries', help="Test this many random examples from the dataset.", type=int, default=defaults.no_tries)
 
@@ -15,7 +16,7 @@ parser.add_argument('--no-tries', help="Test this many random examples from the 
 
 args = parser.parse_args()
 
-MODELNAME = args.pretrained_name
+MODELNAME = join(defaults.models_path,args.pretrained_name)
 CSV_FILE = args.data_file
 NO_TRIES = args.no_tries
 

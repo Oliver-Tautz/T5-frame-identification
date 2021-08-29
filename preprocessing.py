@@ -11,10 +11,10 @@ class Argument():
         self.stance = stance
         self.premise = premise
         self.topic = topic
-        self.topic_id = topic_id
+        self.topic_id = int(topic_id)
         self.frame = frame
-        self.frame_id = frame_id
-        self.argument_id = argument_id
+        self.frame_id = int(frame_id)
+        self.argument_id = int(argument_id)
 
         # combine premise and conclusion for full text
         self.x_text = self.premise + self.conclusion
