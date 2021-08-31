@@ -1,5 +1,5 @@
 # name of the model to train save and test
-model_savename = "t5-base-frame-finetuned-debug"
+model_savename = "t5-base-frame-finetuned"
 
 # name of the model to start training from. You can use local names to continue training from previously
 # saved checkpoints or choose 't5-base'/'t5-small' to start from pretrained t5.

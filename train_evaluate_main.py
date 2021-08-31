@@ -1,3 +1,9 @@
+"""
+
+Train test and evaluate T5 model on Webis-Argument-Framing-19 dataset. Use -h option or see README.md for help.
+
+"""
+
 from preprocessing import get_train_data,get_data
 from model import get_model, get_tokenizer
 import defaults
@@ -14,32 +20,32 @@ from collections import defaultdict
 
 import argparse
 
-parser = argparse.ArgumentParser(description='train and evaluate a T5 on the Webis-Framing-19 dataset.')
-parser.add_argument('--model-savename', help="Name the new, trained model will be saved as.", type=str,default=defaults.model_savename)
-parser.add_argument('--pretrained-name', help="Name of the pretrained model to use. Use 't5-small' for smaller checkpoint. Checkpoint in 'trained_models' folder can also be used.",type=str,default=defaults.pretrained_name)
-parser.add_argument('--epochs', help="Train for that many epochs", type=int, default=defaults.epochs)
-parser.add_argument('--batchsize', help="Use batchsize for training and evaluation. 6 works for t5-base on colab. t5-small can use 24.", type=int, default=defaults.batchsize)
-parser.add_argument('--val-split', help="portion of the data to be used for val set.", type=float, default=defaults.val_split)
-parser.add_argument('--test-split', help="portion of the data to be used for test set.", type=float, default=defaults.val_split)
-parser.add_argument('--data-file', help="absolute or relative path to Webis-Framing-19 dataset csv file.", type=str, default=defaults.data_csv_file)
-parser.add_argument('--debug', help="Use small dataset and model for testing the code.", action='store_true')
 
 
-args = parser.parse_args()
+
+
 
 # make trained_models dir if not existing.
 makedirs(defaults.models_path,exist_ok=True)
 
-PRETRAINED_NAME = args.pretrained_name
-MODEL_FILENAME = join(defaults.models_path,args.model_savename)
-EPOCHS = args.epochs
-BATCHSIZE = args.batchsize
-DEBUG=args.debug
-VAL_SPLIT = args.val_split
-TEST_SPLIT=args.test_split
-DATA_CSV_FILENAME = "data/Webis-argument-framing.csv"
-
 def train_and_save(modelname,pretrained_name,X,X_val,epochs=5,batch_size=6,learning_rate=1e-4):
+    """
+    Train and save model under 'modelname', starting from 'pretrained_name' checkpoint. 
+    The model and its configuration will be saved in a folder called 'modelname'.
+
+    Args:
+        modelname: name of the newly trained model.
+        pretrained_name: name of the checkpoint to start from.
+        X: train dataset.
+        X_val: validation dataset.
+        epochs: number of epochs to train.
+        batch_size: batchsize for training and validation
+        learning_rate: learning rate used by ADAM optimizer.
+
+    Returns:
+        trained model and training history as a dictionary.
+
+    """
     train_size = len(X['input_ids'])
     val_size = len(X_val['input_ids'])
     print("Load Model.")
@@ -52,7 +58,11 @@ def train_and_save(modelname,pretrained_name,X,X_val,epochs=5,batch_size=6,learn
     return model, history
 
 def build_int_mapping(args):
+    """
 
+    get dict with {id : frame} from list of Arguments.
+
+    """
     # set default value to something not present.
     d = defaultdict(lambda : 100000)
     for a in args:
@@ -60,7 +70,19 @@ def build_int_mapping(args):
 
     return d
 
-def evaluate(model, args_test,history , batch_size=BATCHSIZE):
+def evaluate(model, args_test,history , batch_size=4):
+    """
+    Compute and print test metrics 'acc' 'rouge 1' and 'f1-macro'on test args. 
+
+    Args:
+        model: Model to evaluate of type identFrameT5.
+
+        args_test: list of Arguments to evaluate on.
+
+        batch_size: batch size to use for evaluating.
+
+    """
+
     rouge = Rouge()
     print(f"Evaluate on {len(args_test)} samples.")
 
@@ -124,13 +146,38 @@ def evaluate(model, args_test,history , batch_size=BATCHSIZE):
     label_int = [class_int_mapping[l] for l in y_test]
 
 
-    f1 = f1_score(label_int,pred_int,average='weighted')
+    f1 = f1_score(label_int,pred_int,average='macro')
     print('rouge-1 f-score: ',r1_f1)
     print('f1:', f1)
     print('acc= ', correct / len(y_test))
 
 
 if __name__ == "__main__":
+
+    # argparse. Better to put this in main! Import problems this way ...
+    parser = argparse.ArgumentParser(description='train and evaluate a T5 on the Webis-Framing-19 dataset.')
+    parser.add_argument('--model-savename', help="Name the new, trained model will be saved as.", type=str,default=defaults.model_savename)
+    parser.add_argument('--pretrained-name', help="Name of the pretrained model to use. Use 't5-small' for smaller checkpoint. Checkpoint in 'trained_models' folder can also be used.",type=str,default=defaults.pretrained_name)
+    parser.add_argument('--epochs', help="Train for that many epochs", type=int, default=defaults.epochs)
+    parser.add_argument('--batchsize', help="Use batchsize for training and evaluation. 6 works for t5-base on colab. t5-small can use 24.", type=int, default=defaults.batchsize)
+    parser.add_argument('--val-split', help="portion of the data to be used for val set.", type=float, default=defaults.val_split)
+    parser.add_argument('--test-split', help="portion of the data to be used for test set.", type=float, default=defaults.val_split)
+    parser.add_argument('--data-file', help="absolute or relative path to Webis-Framing-19 dataset csv file.", type=str, default=defaults.data_csv_file)
+    parser.add_argument('--debug', help="Use small dataset and model for testing the code.", action='store_true')
+    
+    
+    args = parser.parse_args()
+    
+    PRETRAINED_NAME = args.pretrained_name
+    MODEL_FILENAME = join(defaults.models_path,args.model_savename)
+    EPOCHS = args.epochs
+    BATCHSIZE = args.batchsize
+    DEBUG=args.debug
+    VAL_SPLIT = args.val_split
+    TEST_SPLIT=args.test_split
+    DATA_CSV_FILENAME = "data/Webis-argument-framing.csv"
+
+
 
     print(MODEL_FILENAME)
     if isdir(MODEL_FILENAME):
@@ -155,7 +202,7 @@ if __name__ == "__main__":
         PRETRAINED_NAME = 't5-small'
 
     print("Finished preprocessing")
-    trained_model, history = train_and_save(MODEL_FILENAME,'t5-small', X_train, X_val, batch_size=BATCHSIZE, epochs=EPOCHS)
+    trained_model, history = train_and_save(MODEL_FILENAME,PRETRAINED_NAME, X_train, X_val, batch_size=BATCHSIZE, epochs=EPOCHS)
 
     with open(join(MODEL_FILENAME,'history.pkl'),'wb') as f:
         pickle.dump(history.history,f,-1)

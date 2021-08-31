@@ -7,22 +7,26 @@ from os.path import join
 
 import argparse
 
-parser = argparse.ArgumentParser(description='test a T5 on random examples from the Webis-Framing-19 dataset.')
-parser.add_argument('--pretrained-name', help="Name of the pretrained model to test. Huggingface models and local models can be used." ,type=str,default=defaults.model_savename)
-parser.add_argument('--data-file', help="absolute or relative path to Webis-Framing-19 dataset csv file.", type=str, default=defaults.data_csv_file)
-parser.add_argument('--no-tries', help="Test this many random examples from the dataset.", type=int, default=defaults.no_tries)
-
-
-
-args = parser.parse_args()
-
-MODELNAME = join(defaults.models_path,args.pretrained_name)
-CSV_FILE = args.data_file
-NO_TRIES = args.no_tries
-
-seperator_line = "---------------------------------------------------------------------------------"
-
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description='test a T5 on random examples from the Webis-Framing-19 dataset.')
+    parser.add_argument('--pretrained-name', help="Name of the pretrained model to test. Huggingface models and local models can be used." ,type=str,default=defaults.model_savename)
+    parser.add_argument('--data-file', help="absolute or relative path to Webis-Framing-19 dataset csv file.", type=str, default=defaults.data_csv_file)
+    parser.add_argument('--no-tries', help="Test this many random examples from the dataset.", type=int, default=defaults.no_tries)
+    
+    
+    
+    args = parser.parse_args()
+    
+    MODELNAME = join(defaults.models_path,args.pretrained_name)
+    CSV_FILE = args.data_file
+    NO_TRIES = args.no_tries
+    
+    seperator_line = "---------------------------------------------------------------------------------"
+    
+    
+    
+    
     print("Loading Model.")
     model = get_model(MODELNAME)
     tokenizer = get_tokenizer()
