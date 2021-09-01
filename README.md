@@ -22,7 +22,7 @@ and extract the archive in this folder.
 
 In addition to the `setup.py` two executable scripts are provided. To train and
 evaluate the t5 call `python train_evaluate_main.py`. To test if the code is
-working supply the `--debug` option. **This is recommended when using CPU** To
+working supply the `--debug` option. **This is recommended when using CPU.** To
 fetch some random examples from the dataset and run a pretrained model on them
 call e.g. `python test.py --test-no 3`. The `--test-no` option can be used to
 print multiple examples in a single run.
