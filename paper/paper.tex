@@ -34,37 +34,38 @@ hyperref=true, %% hyperref-Paket verwenden, um Links zu erstellen
 	\maketitle
 	
 	\section{Introduction}
-Transfer learning with powerful, pretrained transformers is used to produce state-of-the-art results in many natural language processing tasks. For this assignement a relatively new transformer, the T5 \citep{T5} is used. The T5, which will be described in more detail in chapter \ref{method}, differs from encoder only, BERT-like \citep{bert} models as it uses an encoder-decoder architecture and can natively solve text-to-text problems. It was shown that many NLP tasks can be translated to such text-to-text problems and solved by a fine tuned version of the T5.\citep{T5}\\
+Transfer learning with powerful, pretrained transformers is used to produce state-of-the-art results in many natural language processing tasks. \citep{wolf-etal-2020-transformers} For this assignement a relatively new transformer, the T5 \citep{T5} is used. The T5, which will be described in more detail in chapter \ref{method}, differs from encoder only, BERT-like \citep{bert} models as it uses an encoder-decoder architecture and can natively solve text-to-text problems. It was shown that many NLP tasks can be translated to such text-to-text problems and solved by a fine tuned version of the T5.\citep{T5}\\
 
 
-The proposed shared task by webis \citep{webis_task} is called frame identification. This is a classification task on full, natural text input. Each example text is an argument, which is labeled with its primary frame. The frame is a particular perspective of the argument which emphasizes an aspect of the associated topic. An example could be the frames ‘economics’, ‘job market’, or ‘education’ for an argument about a school reform. Frames are ambiguous and can be difficult to label even for humans. An automated system solving the task could be used by social scientists to gain more insight into what frames people respond to and evaluate what is important to people or expose fraudulent abuse of framing in political debates.\\
+The proposed shared task by webis \citep{webis_task} is called frame identification. This is a classification task on full, natural text input. Each example text is an argument, which is labeled with its primary frame. The frame is a particular perspective of the argument which emphasizes an aspect of the associated topic. An example could be the frames ‘economics’, ‘job market’, or ‘education’ for an argument about a school reform. Frames are ambiguous and can be difficult to label even for humans. An automated system solving the task could be used by social scientists to gain more insight into what frames people respond to and evaluate what topics are important to the public or expose fraudulent abuse of framing in political debates.\\
 
-As there is an almost unlimited number of frames a standard classification approach is limited to frames it has already seen and was provided enough data about. Thus the generative abilities of the T5 are explored for solving the task posed as a text-to-text problem, with mixed results, showing some promise but underperforming in comparison to already established techniques. 
+As there is an almost unlimited number of frames a standard classification approach is limited to ones it has already seen and was provided enough data about. Thus the generative abilities of the T5 are explored for solving the task posed as a text-to-text problem, with mixed results, showing some promise but underperforming in comparison to already established techniques. 
 
 		
 \section{Related work}
-The approach implemented by the task organizers \citep{webis_task_paper} uses an unsupervised clustering algorithm on heavily preprocessed input and achieves an macro weighted f1-score of \num{0.28}.\\
+The approach implemented by the task organizers \citep{webis_task_paper} uses an unsupervised clustering algorithm on heavily preprocessed input and achieves a macro weighted f1-score of \num{0.28}.\\
 
-Another established approach to solve  NLP classification tasks is to use a pre-trained transformer to produce word embeddings from text and train a classifier on top of that , for example a KNN classifier. BERT was used\citep{bert_frame_ident} to great effect on the \citep{bert_dataset} dataset. Better results were achieved by also fine tuning BERT, reaching \num{91.26} accuracy.  
+Another established approach to solve  NLP classification tasks is to use a pre-trained transformer to produce word embeddings from text and train a classifier on top of that , for example a KNN classifier. BERT was used\citep{bert_frame_ident} to great effect on the \citep{bert_dataset} dataset. Better results were achieved by also fine tuning BERTs embeddings, reaching \num{91.26} accuracy.  
 
 
 \section{Method}
 \label{method}
 
 \subsection{Model}
-The T5 is chosen because we can solve frame identification as a text-to-text task, which removes the general limitation of only being able to predict frames already considered while labeling. With great generalisation the model could theoretically be able to predict frames on general arguments on topics not in the training set. It is an encoder-decoder transformer using a standard transformer architecture with stacked blocks of  self attention layers and fully-connected feed-forward networks in the encoder. For the decoder a normal attention layer is added. Regularization mechanism, namely dropout and layer normalization are used in addition to resnet-like skip-connections.\citep{T5} Checkpoints trained on an unsupervised task on the large C4 dataset are used as a starting point for training.\\
+The T5 is chosen because we can solve frame identification as a text-to-text task, which removes the general limitation of only being able to predict frames already considered while labeling. With great generalisation the model could theoretically be able to predict frames on general arguments on topics not in the training set. It is an encoder-decoder transformer using a standard architecture with stacked blocks of  self attention layers and fully-connected feed-forward networks in the encoder. For the decoder a normal attention layer is added. Regularization mechanisms, namely dropout and layer normalization are used in addition to resnet-like skip-connections.\citep{T5} Checkpoints trained on an unsupervised task on the large C4 dataset are used as a starting point for training.\\
 
 The keras\citep{keras} T5 implementation and weights of huggingface transformers \citep{wolf-etal-2020-transformers} are used.
 
 
 \subsection{Problem Definition}
-\label{pd}
+
 As the T5 can solve text-to-text tasks a very simple problem definition is chosen. Input \textbf{x} is the full argument as natural text, prediction target and label \textbf{y} is the text representation of the frame. A pair \textbf{(x,y)} is called an argument or sample subsequently. 
 \subsection{Data}
+\label{subsec:data}
 The dataset used \citep{webis_task_paper}  comes with a lot of fields per sample, most of which are ignored. Used fields are ‘premise’, ‘conclusion’ and ‘frame’. Concatenating ‘premise’ and ‘conclusion’ forms input \textbf{x}. The frame field can be used without processing as label \textbf{y}. There are \num{12326} labeled arguments in the dataset. The frames are very unevenly distributed with some labels being present only once, and the most prominent frame 'economics' counting 119 samples.
 
 \subsection{Preprocessing}
-Minimal processing is used as described in  \ref{pd}. The dataset is split before training into train-, test- and validation set with a split ratio of \num{0.2}, resulting in test-size of \num{2466} and val-size of \num{1973} respectively. The split is done in a stratified fashion, making a special case for samples with unique frames and distributing them according to the split ratio among train, test and val set. Arguments with rare frames, counting less than five samples are disregarded for training to achieve a more stable training signal, resulting in a train-set of \num{5351} samples. For training and predicting the input is tokenized by the T5Tokenizer \citep{wolf-etal-2020-transformers}, also padding and truncating sequences to the T5s max length of \num{512} tokens. 
+Experiments adding the task specific prefix 'summary' \citep{T5} to the input showed no effect. So minimal processing is used as described in  \ref{subsec:data}. The dataset is split before training into train-, test- and validation set with a split ratio of \num{0.2}, resulting in test-size of \num{2466} and val-size of \num{1973} respectively. The split is done in a stratified fashion, making a special case for samples with unique frames and distributing them according to the split ratio among train, test and val set. Arguments with rare frames, counting less than five samples are disregarded for training to achieve a more stable training signal, resulting in a train-set of \num{5351} samples. For training and predicting the input is tokenized by the T5Tokenizer \citep{wolf-etal-2020-transformers}, also padding and truncating sequences to the T5s max length of \num{512} tokens. 
 
 \subsection{Training Setup and Hyperparameters}
 
@@ -89,11 +90,11 @@ Minimal processing is used as described in  \ref{pd}. The dataset is split befor
 \end{figure}
 
 
-Two models are trained, one starting from the provided, pre-trained checkpoint ‘t5-base’ and one starting from ‘t5-small’. The ‘t5-small’ is a smaller version of the T5. The base model is trained for \num{5} epochs, the small one for \num{10} epochs optimized by ADAM \citep{kingma2017adam} with a small, constant learning rate of \num{1e-4} and cross entropy loss. A batch size of 6 and 24 is used for the base and small model respectively. Both batch sizes are smaller than in the T5-paper but are chosen to be suitable for training on google colab. Learning curves can be seen in fig \ref{fig:loss}. They show symptoms of overfitting after a few epochs for both models, quicker and more pronounced for the base model.
+Two models are trained, one starting from the provided, pre-trained checkpoint ‘t5-base’ and one starting from ‘t5-small’. The ‘t5-small’ is a smaller version of the T5. The base model is trained for \num{5} epochs, the small one for \num{10} epochs optimized by ADAM \citep{kingma2017adam} with a small, constant learning rate of \num{1e-4} and cross entropy loss. A batch size of 6 and 24 is used for the base and small model respectively. Both batch sizes are smaller than in the T5-paper but are chosen to be suitable for training on google colab. Learning curves can be seen in figure \ref{fig:loss}. They show symptoms of overfitting after a few epochs for both models, quicker and more pronounced for the base model.
 
 \section{Evaluation}
 \subsection{Metrics}
-Three metrics are computed on the test set. To roughly compare to the BERT-classifier the ‘full lexical accuracy’, which means accuracu on all test samples, is computed. To compare to the task organizers clustering the macro-weighted f1-score is computed. For both the output is trimmed to text without padding and a prediction counts as correct only if the produced and label string match. Because the T5 generates the frame text they are unsatisfying metrics as it can produce similar, yet not identical results. Therefore in addition the ROUGE-1 f1 \citep{rouge} score is computed. This metric is usually used to compare the similarity of summaries. It is less harsh, as e.g. the prediction ‘popular opinion’ for a ‘public opinion’ labeled sample would be counted as partially correct. The T5 could still predict semantically similar frames, which is disregarded by both metrics.
+Three metrics are computed on the test set. To roughly compare to the BERT-classifier the ‘full lexical accuracy’, which means accuracy on all test samples, is computed. To compare to the task organizers clustering the macro-weighted f1-score is used. This is the mean of f1-scores per class, weighing them all equally regardless of size. For both the output is trimmed to text without padding and a prediction counts as correct only if the predicted and label string match. Because the T5 generates the frame text these are unsatisfying metrics as it can produce similar, yet not identical results. Therefore in addition the ROUGE-1 f1 \citep{rouge} score is computed. This metric is usually used to compare the similarity of full text summaries but is also applicable here. It is less harsh, as e.g. the prediction ‘popular opinion’ for a ‘public opinion’ labeled sample would be counted as partially correct. The T5 could still predict semantically similar frames, which is disregarded by both metrics.
 
 \subsection{Results}
 
@@ -102,7 +103,7 @@ Three metrics are computed on the test set. To roughly compare to the BERT-class
 			\begin{center}
 				\begin{tabular}{|l|c|c|c|}
 					\hline
-                    \textbf{Model} & \textbf{f1-macro}  & \textbf{Accuracy} & \textbf{rouge1-f1}\\
+                    \textbf{Model} & \textbf{f1-macro}  & \textbf{Accuracy} & \textbf{Rouge1-f1}\\
 					\hline
 					\hline
 					\hline
