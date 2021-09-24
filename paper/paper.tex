@@ -42,11 +42,6 @@ The proposed shared task by \textit{webis} \citep{webis_task} is called frame id
 As there is an almost unlimited number of frames a standard classification approach is limited to ones it has already seen and was provided enough data about. Thus the generative abilities of the T5 are explored for solving the task posed as a text-to-text problem, with mixed results, showing some promise but underperforming in comparison to already established techniques. 
 
 		
-\section{Related work}
-The approach implemented by the task organizers \citep{webis_task_paper} uses an unsupervised clustering algorithm on heavily preprocessed input and achieves a macro weighted f1-score of \num{0.28}.\\
-
-Another established approach to solve  NLP classification tasks is to use a pre-trained transformer to produce word embeddings from text and train a classifier on top of that , for example a KNN classifier. BERT was used\citep{bert_frame_ident} to great effect on the \citep{bert_dataset} dataset. Better results were achieved by also fine tuning BERTs embeddings, reaching \num{91.26} accuracy.  
-
 
 \section{Method}
 \label{method}
