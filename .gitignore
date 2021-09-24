@@ -2,6 +2,9 @@ data/
 trained_models/
 possible_sources/
 .idea/
+
+*.out
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
