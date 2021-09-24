@@ -3,6 +3,8 @@
 Code for task of course 'deep learning for natural language processing', at
 University Bielefeld, by Oliver Tautz.
 
+Find a description of the task and code [here](https://github.com/Oliver-Tautz/T5-frame-identification/blob/dbfd4e43d252fafcd12ff664403eb70b458843f5/paper/paper.pdf)
+
 The scripts should automatically use your GPU if CUDA is correctly installed and
 works with tensorflow2.  Training and evaluation is extremely slow on CPU!
 Testing is possible. All code was tested using python3.8.9
