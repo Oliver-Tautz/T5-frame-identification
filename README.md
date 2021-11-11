@@ -1,7 +1,7 @@
 # T5-frame-identification
 
 Code for task of course 'deep learning for natural language processing', at
-University Bielefeld, by Oliver Tautz.
+University Bielefeld. The T5 transformer is finetuned for the Task of frame-identification.
 
 Find a description of the task and code [here](https://github.com/Oliver-Tautz/T5-frame-identification/blob/dbfd4e43d252fafcd12ff664403eb70b458843f5/paper/paper.pdf)
 
